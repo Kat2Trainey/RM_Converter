@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="Shift_JIS">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ベンチプレスrm換算表</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        select {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>rpm早見表</h1>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>2rep</th>
+                <th>3rep</th>
+                <th>4rep</th>
+                <th>5rep</th>
+                <th>6rep</th>
+                <th>7rep</th>
+                <th>8rep</th>
+                <th>9rep</th>
+                <th>10rep</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <select id="selection">
+                        <!-- 項目をJavaScriptで動的に追加 -->
+                    </select>
+                </td>
+                <td id="rep2"></td>
+                <td id="rep3"></td>
+                <td id="rep4"></td>
+                <td id="rep5"></td>
+                <td id="rep6"></td>
+                <td id="rep7"></td>
+                <td id="rep8"></td>
+                <td id="rep9"></td>
+                <td id="rep10"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // CSVファイルのパス
+        const csvFilePath = 'data.csv'; // 'data.csv' は同じフォルダ内にあると仮定
+
+        // CSVファイルを読み込み、テーブルを動的に更新する関数
+        function loadCSV() {
+            fetch(csvFilePath)
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n').map(row => row.split(','));
+                    const selectElement = document.getElementById('selection');
+
+                    // 選択項目を動的に追加（各行の1列目を使用）
+                    rows.forEach(row => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = row[0];
+                        optionElement.textContent = row[0];
+                        selectElement.appendChild(optionElement);
+                    });
+
+                    // 選択が変更されたら対応する値を表示
+                    selectElement.addEventListener('change', function() {
+                        const selectedOption = this.value;
+                        const selectedRow = rows.find(row => row[0] === selectedOption);
+                        if (selectedRow) {
+                            const values = selectedRow.slice(1); // 1列目は除外
+                            for (let i = 2; i <= 10; i++) {
+                                document.getElementById(`rep${i}`).textContent = values[i - 2] || ''; // 値が無ければ空にする
+                            }
+                        }
+                    });
+
+                    // 初期表示用に最初の項目を選択
+                    selectElement.dispatchEvent(new Event('change'));
+                });
+        }
+
+        // ページロード時にCSVを読み込む
+        window.onload = loadCSV;
+    </script>
+</body>
+</html>
